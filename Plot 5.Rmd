@@ -1,0 +1,46 @@
+
+## 0 Preparation step
+# Create a folder called assignment 2:
+```{r}
+if(!file.exists("./assignment")){dir.create("./assignment")}
+```
+
+# Download and unzip file:
+```{r}
+fileurl <- "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2FNEI_data.zip"
+download.file(fileurl, destfile = "./assignment/assignment.zip")
+unzip(zipfile = "./assignment/assignment.zip", exdir = "./assignment")
+```
+
+# Read the file into R and check and class of each variable:
+```{r}
+setwd("D:/Statistics/R/R data/assignment2/assignment")
+NEI <- readRDS("summarySCC_PM25.rds")
+SCC <- readRDS("Source_Classification_Code.rds")
+lapply(NEI, class); lapply(SCC, class)
+```
+
+# Set the condition for motor vehicals
+```{r}
+condition <- grepl("vehicle", SCC[, 8], ignore.case=TRUE)
+vehiclesSCC <- SCC[condition,]$SCC
+vehiclesNEI <- NEI[NEI$SCC %in% vehiclesSCC,]
+```
+
+# Take out the motor vehicals of Baltimore
+```{r}
+baltimoreVehicles<- vehiclesNEI[vehiclesNEI$fips=="24510",]
+```
+
+# PLot 5: How have emissions from motor vehicle sources changed from 1999–2008 in Baltimore City?
+
+```{r}
+library(ggplot2)
+
+bar <- ggplot(baltimoreVehicles,aes(factor(year),Emissions))
+bar + stat_summary(fun.y = sum, geom = "bar", position="dodge") + labs(title = expression("PM"[2.5]*" Motor Vehicle Source Emissions in Baltimore from 1999-2008"))
+dev.copy(device = png, width = 480, height = 480, file = "Plot5.png")
+dev.off()
+```
+
+
